@@ -2,10 +2,8 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache curl
-
 COPY package*.json ./
-RUN npm config set fetch-timeout 600000 && npm config set registry https://registry.npmjs.org/ && npm install --production
+RUN npm install --production --registry https://registry.npmmirror.com
 
 COPY . .
 
