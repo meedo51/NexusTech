@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a0a0f" />
+    <meta name="description" content="Ahmed Alsaleh - Full-Stack Developer & Creative Technologist. Building digital realities through code." />
+    <meta name="keywords" content="developer, portfolio, react, typescript, full-stack" />
+    <meta property="og:title" content="NexusTech - Ahmed Alsaleh" />
+    <meta property="og:description" content="Building Digital Realities" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NexusTech - Ahmed Alsaleh" />
+    <meta name="twitter:description" content="Building Digital Realities" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+    <title>NexusTech | Ahmed Alsaleh</title>
+    <style>
+      body { margin: 0; background: #0a0a0f; overflow-x: hidden; }
+      #loader { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #0a0a0f; z-index: 9999; transition: opacity 0.8s ease; }
+      #loader.hidden { opacity: 0; pointer-events: none; }
+      .loader-text { font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 1.5s ease-in-out infinite; }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="loader"><div class="loader-text">NEXUS</div></div>
+    <div id="root"></div>
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => document.getElementById('loader')?.classList.add('hidden'), 500);
+      });
+    </script>
+  </body>
+</html>
