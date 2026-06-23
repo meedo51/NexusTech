@@ -50,17 +50,14 @@ services:
       - nexus-network
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: nginx:alpine
     container_name: nexus-frontend
     restart: always
     ports:
       - "7788:80"
-    environment:
-      REACT_APP_API_URL: https://dev.xus.me/api
-      REACT_APP_WEBSITE_URL: https://dev.xus.me
-      REACT_APP_ADMIN_URL: https://dev.xus.me/admin
+    volumes:
+      - ./frontend/build:/usr/share/nginx/html
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - backend
     networks:
