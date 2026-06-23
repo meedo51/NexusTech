@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
   Mail, Phone, MapPin, Clock, Globe, Send,
   Github, Linkedin, Twitter, Youtube,
@@ -22,8 +22,6 @@ const platformColors: Record<string, string> = {
 
 const ContactSection: React.FC = () => {
   const { contact, loading: isLoading, error, refreshContact, isFetching } = useContact({ public: true });
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.1 });
   const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
 
@@ -83,14 +81,14 @@ const ContactSection: React.FC = () => {
   }
 
   return (
-    <section ref={sectionRef} id="contact" className="py-24 px-4 bg-gradient-to-b from-gray-900 via-gray-900/95 to-gray-950 relative overflow-hidden">
+    <section id="contact" className="py-24 px-4 bg-gradient-to-b from-gray-900 via-gray-900/95 to-gray-950 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-purple-600/5 via-pink-600/5 to-blue-600/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-blue-600/5 via-purple-600/5 to-pink-600/5 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }} className="text-center mb-16">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-purple-600/10 px-4 py-2 rounded-full border border-purple-500/20 mb-4">
             <Sparkles className="w-4 h-4 text-purple-400" /><span className="text-purple-400 text-sm font-medium">Get in Touch</span>
           </div>
@@ -109,7 +107,7 @@ const ContactSection: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Left Column - Contact Info */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="lg:col-span-3 space-y-6">
+          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className="lg:col-span-3 space-y-6">
             {/* Status Card */}
             <div className="bg-gradient-to-br from-purple-600/10 to-pink-600/10 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-6">
               <div className="flex items-center justify-between">
@@ -223,7 +221,7 @@ const ContactSection: React.FC = () => {
 
             {/* Map */}
             {contact.location?.mapEmbedUrl && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.4 }}
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.4 }}
                 className="rounded-2xl overflow-hidden border border-gray-700/30">
                 <iframe src={contact.location.mapEmbedUrl} className="w-full h-64" title="Location" style={{ border: 0 }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
               </motion.div>
@@ -231,7 +229,7 @@ const ContactSection: React.FC = () => {
           </motion.div>
 
           {/* Right Column - Contact Form */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.4 }} className="lg:col-span-2">
+          <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.4 }} className="lg:col-span-2">
             {contact.contactForm?.enabled !== false && (
               <div className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-sm border border-gray-700/30 rounded-2xl p-8 sticky top-24">
                 <div className="flex items-center gap-3 mb-6">
@@ -304,7 +302,7 @@ const ContactSection: React.FC = () => {
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.6 }}
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.6 }}
           className="text-center mt-16 pt-8 border-t border-gray-800/50">
           <p className="text-gray-500 text-sm">
             &copy; {new Date().getFullYear()} NexusTech. All rights reserved.
