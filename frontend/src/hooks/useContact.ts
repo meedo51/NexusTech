@@ -1,20 +1,29 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { contactApi } from '../services/contactApi';
 
-export const useContact = () => {
+export const useContact = (options?: { public?: boolean }) => {
+  const isPublic = options?.public;
   const queryClient = useQueryClient();
+  const queryKey = isPublic ? ['contact', 'public'] : ['contact'];
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['contact'] });
     queryClient.invalidateQueries({ queryKey: ['contact', 'public'] });
   };
 
-  const { data: contact, isLoading, error, refetch } = useQuery({
-    queryKey: ['contact'],
+  const { data: contact, isLoading, error, refetch, isFetching } = useQuery({
+    queryKey,
     queryFn: async () => {
+      if (isPublic) {
+        const res = await contactApi.getPublic();
+        return res.data.data.contact;
+      }
       const res = await contactApi.get();
       return res.data.data.contact;
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const updateContact = useMutation({
@@ -64,10 +73,7 @@ export const useContact = () => {
   });
 
   return {
-    contact,
-    loading: isLoading,
-    error,
-    refreshContact: refetch,
+    contact, loading: isLoading, error, refreshContact: refetch, isFetching,
     updateContact: updateContact.mutateAsync,
     addSocialMedia: addSocialMedia.mutateAsync,
     updateSocialMedia: updateSocialMedia.mutateAsync,

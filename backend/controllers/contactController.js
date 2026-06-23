@@ -30,19 +30,60 @@ exports.getContact = catchAsync(async (req, res) => {
   res.json({ status: 'success', data: { contact } });
 });
 
+const checkIsOpenNow = (schedule) => {
+  if (!schedule) return false;
+  const now = new Date();
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const dayOfWeek = days[now.getDay()];
+  const currentTime = now.toTimeString().slice(0, 5);
+  const daySchedule = schedule[dayOfWeek];
+  if (!daySchedule || daySchedule.isClosed) return false;
+  return currentTime >= daySchedule.open && currentTime <= daySchedule.close;
+};
+
 exports.getPublicContact = catchAsync(async (req, res) => {
   let contact = await Contact.findOne();
   if (!contact) {
-    contact = await Contact.create({ email: 'contact@nexustech.dev', phone: '+1 (555) 000-0000', address: { street: '123 Main St', city: 'Tech City', country: 'USA' }, socialMedia: [] });
+    contact = await Contact.create({
+      email: 'ahmed@nexustech.dev',
+      phone: '+1 (555) 123-4567',
+      address: { street: '123 Innovation Drive', city: 'San Francisco', state: 'CA', zipCode: '94025', country: 'USA' },
+      socialMedia: [
+        { platform: 'github', url: 'https://github.com/ahmedalsaleh', username: 'ahmedalsaleh', isActive: true, displayOrder: 0 },
+        { platform: 'linkedin', url: 'https://linkedin.com/in/ahmedalsaleh', username: 'ahmedalsaleh', isActive: true, displayOrder: 1 },
+        { platform: 'twitter', url: 'https://twitter.com/ahmedalsaleh', username: 'ahmedalsaleh', isActive: true, displayOrder: 2 }
+      ],
+      businessHours: { days: 'Monday - Friday', hours: '9:00 AM - 6:00 PM', is24Hours: false, timezone: 'PST', schedule: { monday: { open: '09:00', close: '18:00' }, tuesday: { open: '09:00', close: '18:00' }, wednesday: { open: '09:00', close: '18:00' }, thursday: { open: '09:00', close: '18:00' }, friday: { open: '09:00', close: '18:00' }, saturday: { open: '10:00', close: '14:00' }, sunday: { isClosed: true } } },
+      contactForm: { enabled: true, emailSubject: 'New Contact Message', successMessage: 'Thank you for reaching out!', errorMessage: 'Something went wrong.', notificationEmails: ['ahmed@nexustech.dev'] },
+      isActive: true
+    });
   }
+  if (!contact.isActive) return res.json({ status: 'success', data: { contact: null } });
+
+  const socialMedia = contact.socialMedia.filter(s => s.isActive).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0)).map(s => ({
+    platform: s.platform, url: s.url, username: s.username || s.platform, displayOrder: s.displayOrder || 0
+  }));
+
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.json({
     status: 'success', data: {
       contact: {
         email: contact.email, phone: contact.phone, phoneSecondary: contact.phoneSecondary,
-        address: contact.address, socialMedia: contact.socialMedia.filter(s => s.isActive),
-        businessHours: contact.businessHours,
-        contactForm: { enabled: contact.contactForm.enabled, successMessage: contact.contactForm.successMessage },
-        location: contact.location, isActive: contact.isActive
+        address: contact.address,
+        socialMedia,
+        businessHours: {
+          days: contact.businessHours?.days || 'Monday - Friday',
+          hours: contact.businessHours?.hours || '9:00 AM - 6:00 PM',
+          is24Hours: contact.businessHours?.is24Hours || false,
+          timezone: contact.businessHours?.timezone || 'UTC',
+          schedule: contact.businessHours?.schedule || null,
+          isOpenNow: checkIsOpenNow(contact.businessHours?.schedule)
+        },
+        location: contact.location,
+        contactForm: { enabled: contact.contactForm?.enabled ?? true, successMessage: contact.contactForm?.successMessage || 'Thank you!', errorMessage: contact.contactForm?.errorMessage || 'Error sending.' },
+        emergencyContact: contact.emergencyContact || null,
+        isActive: contact.isActive,
+        lastUpdated: contact.updatedAt || contact.createdAt
       }
     }
   });

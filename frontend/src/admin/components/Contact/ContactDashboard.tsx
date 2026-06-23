@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, Globe, MapPin, Clock, MessageSquare, Map, AlertCircle, Home, User, Shield, Edit3, Save } from 'lucide-react';
+import { Mail, Phone, Globe, MapPin, Clock, MessageSquare, Map, AlertCircle, Home, User, Shield, Edit3, Save, Eye, RefreshCw } from 'lucide-react';
 import { useContact } from '../../../hooks/useContact';
 import ContactInfoEditor from './ContactInfoEditor';
 import AddressEditor from './AddressEditor';
@@ -20,10 +20,11 @@ const tabs = [
   { id: 'form', label: 'Contact Form', icon: MessageSquare },
   { id: 'location', label: 'Location', icon: Map },
   { id: 'emergency', label: 'Emergency', icon: AlertCircle },
+  { id: 'preview', label: 'Preview', icon: Eye },
 ];
 
 const ContactDashboard: React.FC = () => {
-  const { contact, loading, error, refreshContact, updateContact, addSocialMedia, updateSocialMedia, deleteSocialMedia, reorderSocialMedia } = useContact();
+  const { contact, loading, error, refreshContact, isFetching, updateContact, addSocialMedia, updateSocialMedia, deleteSocialMedia, reorderSocialMedia } = useContact();
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -110,7 +111,55 @@ const ContactDashboard: React.FC = () => {
       {activeTab === 'form' && <ContactFormSettings formSettings={contact?.contactForm} isEditing={isEditing} onSave={handleSave} isSaving={isSaving} />}
       {activeTab === 'location' && <LocationManager location={contact?.location} isEditing={isEditing} onSave={handleSave} isSaving={isSaving} />}
       {activeTab === 'emergency' && <EmergencyContactEditor emergencyContact={contact?.emergencyContact} isEditing={isEditing} onSave={handleSave} isSaving={isSaving} />}
+      {activeTab === 'preview' && <LivePreview contact={contact} onRefresh={refreshContact} isFetching={isFetching} />}
     </motion.div>
+  );
+};
+
+const LivePreview: React.FC<{ contact: any; onRefresh: () => void; isFetching: boolean }> = ({ contact, onRefresh, isFetching }) => {
+  const [lastRefresh] = React.useState(new Date());
+  return (
+    <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700/50">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Eye className="w-4 h-4 text-purple-400" />
+          <h3 className="text-lg font-semibold text-white">Live Preview</h3>
+          <span className="text-xs text-gray-500">Last updated: {lastRefresh.toLocaleTimeString()}</span>
+        </div>
+        <button onClick={onRefresh} className="text-gray-400 hover:text-white transition-colors" disabled={isFetching}>
+          <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+      <div className="bg-gray-900/50 rounded-lg p-4 max-h-80 overflow-y-auto">
+        {contact ? (
+          <div className="space-y-2 text-sm">
+            {[
+              { label: 'Email', value: contact.email },
+              { label: 'Phone', value: contact.phone },
+              { label: 'Secondary Phone', value: contact.phoneSecondary || 'N/A' },
+              { label: 'Address', value: contact.address?.city ? `${contact.address.city}, ${contact.address.state || ''}` : 'Not set' },
+              { label: 'Social Platforms', value: `${contact.socialMedia?.filter((s: any) => s.isActive).length || 0} active` },
+              { label: 'Business Hours', value: contact.businessHours?.days || 'Not set' },
+              { label: 'Form Enabled', value: contact.contactForm?.enabled ? 'Yes' : 'No' },
+              { label: 'Emergency Contact', value: contact.emergencyContact?.name || 'None' },
+            ].map((row, i) => (
+              <div key={i} className="flex items-center justify-between border-b border-gray-700/30 pb-2 last:border-0">
+                <span className="text-gray-400">{row.label}</span>
+                <span className="text-white truncate max-w-[200px]">{String(row.value)}</span>
+              </div>
+            ))}
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-gray-400">Status</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs ${contact.isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                {contact.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">No contact data available</p>
+        )}
+      </div>
+    </div>
   );
 };
 
