@@ -2,8 +2,10 @@ FROM node:18-alpine as builder
 
 WORKDIR /app
 
+RUN apk add --no-cache curl
+
 COPY package*.json ./
-RUN npm config set fetch-timeout 600000 && npm install --legacy-peer-deps
+RUN npm config set fetch-timeout 600000 && npm config set registry https://registry.npmjs.org/ && npm install --legacy-peer-deps && ls -la node_modules/.bin/ | grep react-scripts
 
 COPY . .
 
