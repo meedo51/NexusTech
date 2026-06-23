@@ -3,7 +3,7 @@ FROM node:18-alpine as builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm config set fetch-timeout 600000 && npm install --legacy-peer-deps
 
 COPY . .
 

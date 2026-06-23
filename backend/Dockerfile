@@ -3,7 +3,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --production
+RUN npm config set fetch-timeout 600000 && npm install --production
 
 COPY . .
 
